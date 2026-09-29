@@ -1,0 +1,249 @@
+@import 'tailwindcss';
+
+/* ---------- Design tokens ---------- */
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Lake Michigan blues */
+  --color-coastal-50: #f0f7f9;
+  --color-coastal-100: #e1eff3;
+  --color-coastal-200: #c3dfe8; /* was "#c3df8" (invalid) in v1 */
+  --color-coastal-300: #8ec5d5;
+  --color-coastal-400: #52a2bb;
+  --color-coastal-500: #3486a0;
+  --color-coastal-600: #2b6b83;
+  --color-coastal-700: #26576c;
+  --color-coastal-800: #244859;
+  --color-coastal-900: #213d4b;
+  --color-coastal-950: #112631;
+
+  /* Indiana Dunes sand and oak */
+  --color-dune-50: #fbf9f5;
+  --color-dune-100: #f5f0e6;
+  --color-dune-200: #ebdcc8;
+  --color-dune-300: #dec2a2;
+  --color-dune-400: #ce9f75;
+  --color-dune-500: #c28352;
+  --color-dune-600: #b26a42;
+  --color-dune-700: #945238;
+  --color-dune-800: #774332;
+  --color-dune-900: #61392c;
+}
+
+/* ---------- Base ---------- */
+
+@layer base {
+  html {
+    scrollbar-color: var(--color-slate-300) var(--color-slate-100);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-coastal-500);
+    outline-offset: 2px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  label {
+    @apply mb-1 block text-xs font-semibold text-slate-600;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------- Reusable components ---------- */
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-slate-300 bg-slate-50 p-2.5 text-sm text-slate-800;
+    @apply focus:border-coastal-500 focus:ring-2 focus:ring-coastal-500/30 focus:outline-none;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .btn-primary {
+    @apply bg-coastal-600 text-white shadow-sm hover:bg-coastal-700;
+  }
+  .btn-ghost {
+    @apply text-slate-600 hover:bg-slate-100;
+  }
+  .btn-danger {
+    @apply bg-rose-600 text-white shadow-sm hover:bg-rose-700;
+  }
+
+  .icon-btn {
+    @apply inline-flex size-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold;
+  }
+  .badge-sample {
+    @apply border border-dashed border-dune-400 bg-dune-50 text-dune-800;
+  }
+
+  .empty-state {
+    @apply rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500;
+  }
+
+  .timer-btn {
+    @apply inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-colors;
+    @apply bg-coastal-100 text-coastal-800 hover:bg-coastal-200;
+  }
+  .timer-btn-running {
+    @apply bg-rose-500 text-white hover:bg-rose-600;
+  }
+
+  /* Tabs */
+  .tab {
+    @apply flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700/50 hover:text-white;
+  }
+  .tab[aria-selected='true'] {
+    @apply bg-coastal-600 text-white shadow-sm hover:bg-coastal-600;
+  }
+
+  /* Dialogs */
+  .dialog {
+    @apply m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-0 text-slate-800 shadow-xl;
+  }
+  .dialog::backdrop {
+    background: rgb(15 23 42 / 0.6);
+    backdrop-filter: blur(4px);
+  }
+  .dialog-header {
+    @apply flex items-center justify-between border-b border-slate-100 p-6;
+  }
+  .dialog-footer {
+    @apply flex justify-end gap-3 border-t border-slate-100 pt-4;
+  }
+
+  /* Toasts */
+  .toast {
+    @apply flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg;
+  }
+  .toast-error {
+    @apply bg-rose-700;
+  }
+}
+
+/* ---------- Before / after comparison ---------- */
+
+.compare {
+  position: relative;
+  height: 20rem;
+  overflow: hidden;
+  background: var(--color-slate-900);
+  user-select: none;
+}
+
+.compare-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.compare-before {
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.compare-tag {
+  position: absolute;
+  bottom: 0.75rem;
+  border-radius: 0.25rem;
+  background: rgb(15 23 42 / 0.8);
+  padding: 0.25rem 0.625rem;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  pointer-events: none;
+}
+.compare-tag-before {
+  left: 0.75rem;
+}
+.compare-tag-after {
+  right: 0.75rem;
+}
+
+.compare-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  width: 4px;
+  transform: translateX(-50%);
+  background: white;
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.3);
+  pointer-events: none;
+}
+
+.compare-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: white;
+  color: var(--color-coastal-600);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2);
+  transform: translate(-50%, -50%);
+}
+
+.compare:has(.compare-range:focus-visible) .compare-knob {
+  outline: 3px solid var(--color-coastal-400);
+  outline-offset: 2px;
+}
+
+/* The range input is invisible but covers the whole image: click, drag, touch or use arrow keys. */
+.compare-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  appearance: none;
+  touch-action: pan-y;
+}
+.compare-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 48px;
+  height: 20rem;
+}
+.compare-range::-moz-range-thumb {
+  width: 48px;
+  height: 20rem;
+  border: 0;
+}
+
+@media (min-width: 640px) {
+  .compare {
+    height: 22rem;
+  }
+}

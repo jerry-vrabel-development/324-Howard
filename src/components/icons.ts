@@ -1,0 +1,69 @@
+import {
+  BookOpen,
+  ChartPie,
+  ChevronsLeftRight,
+  CircleCheck,
+  Clock,
+  DatabaseBackup,
+  Download,
+  FileText,
+  House,
+  Image,
+  ImageOff,
+  Landmark,
+  ListTodo,
+  MapPin,
+  Pause,
+  Pencil,
+  PenTool,
+  Play,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Square,
+  SquareCheck,
+  Trash2,
+  TriangleAlert,
+  Upload,
+  X,
+  createIcons,
+} from 'lucide';
+
+/**
+ * Only the icons listed here end up in the bundle (the old CDN loaded all of
+ * them, unpinned). Use them in markup as <i data-lucide="kebab-name"></i>.
+ */
+const ICONS = {
+  BookOpen,
+  ChartPie,
+  ChevronsLeftRight,
+  CircleCheck,
+  Clock,
+  DatabaseBackup,
+  Download,
+  FileText,
+  House,
+  Image,
+  ImageOff,
+  Landmark,
+  ListTodo,
+  MapPin,
+  Pause,
+  Pencil,
+  PenTool,
+  Play,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Square,
+  SquareCheck,
+  Trash2,
+  TriangleAlert,
+  Upload,
+  X,
+};
+
+/** Replace <i data-lucide> placeholders inside `root` with SVGs. */
+export function hydrateIcons(root: Element | Document = document): void {
+  createIcons({ icons: ICONS, root, attrs: { 'aria-hidden': 'true', focusable: 'false' } });
+}
