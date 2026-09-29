@@ -29,9 +29,14 @@ describe('safeImageUrl', () => {
     expect(safeImageUrl('https://example.com/a.jpg', fallback)).toBe('https://example.com/a.jpg');
     expect(safeImageUrl('data:image/png;base64,AAAA', fallback)).toBe('data:image/png;base64,AAAA');
   });
+  it('allows site-relative paths such as committed photos', () => {
+    expect(safeImageUrl('/324-Howard/photos/a.webp', fallback)).toBe(
+      `${location.origin}/324-Howard/photos/a.webp`,
+    );
+  });
   it('rejects scripts and garbage', () => {
     expect(safeImageUrl('javascript:alert(1)', fallback)).toBe(fallback);
-    expect(safeImageUrl('not a url', fallback)).toBe(fallback);
+    expect(safeImageUrl('   ', fallback)).toBe(fallback);
     expect(safeImageUrl('data:text/html,<script>', fallback)).toBe(fallback);
   });
 });

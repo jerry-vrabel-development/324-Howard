@@ -52,14 +52,16 @@ export function setHtml(el: Element, content: SafeHtml): void {
 }
 
 /**
- * Only allow http(s) and inline image data URLs as image sources.
- * Anything else (javascript:, file:, garbage) falls back to the placeholder.
+ * Only allow http(s) URLs (absolute, or relative to this site, like the
+ * committed /photos/*.webp) and inline image data URLs as image sources.
+ * Anything else (javascript:, file:, blob:) falls back to the placeholder.
  */
 export function safeImageUrl(url: string, fallback: string): string {
   const trimmed = url.trim();
+  if (!trimmed) return fallback;
   if (/^data:image\/(png|jpe?g|gif|webp|svg\+xml|avif);/i.test(trimmed)) return trimmed;
   try {
-    const parsed = new URL(trimmed);
+    const parsed = new URL(trimmed, window.location.href);
     return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.href : fallback;
   } catch {
     return fallback;

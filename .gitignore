@@ -8,3 +8,6 @@ coverage
 !.env.example
 .vscode/*
 !.vscode/extensions.json
+
+# Raw photos waiting to be processed (npm run photos). Never committed: they contain GPS data.
+photos-inbox/

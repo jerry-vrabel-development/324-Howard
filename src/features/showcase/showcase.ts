@@ -4,6 +4,7 @@ import { closeDialog, openDialog } from '../../components/dialog';
 import { hydrateIcons } from '../../components/icons';
 import { addPhoto, deletePhoto } from '../../store/actions';
 import type { Store } from '../../store/store';
+import { loadPublishedPhotos } from '../../content/published';
 import type { Photo } from '../../types';
 import { byDateDesc, formatDate, isIsoDate, todayIso } from '../../utils/dates';
 import { byId, fillSelect, formValue } from '../../utils/dom';
@@ -15,6 +16,32 @@ import {
   enhanceCompareSliders,
 } from './compareSlider';
 
+function imageSrc(url: string, fallback: string): string {
+  return url ? safeImageUrl(url, fallback) : fallback;
+}
+
+/** Before/after pairs get the comparison slider; a single progress photo is shown as-is. */
+function photoMedia(photo: Photo) {
+  const afterSrc = imageSrc(photo.afterUrl, AFTER_PLACEHOLDER);
+  if (!photo.beforeUrl) {
+    return html`<div class="compare">
+      <img
+        class="compare-img"
+        src="${afterSrc}"
+        alt="${photo.title}"
+        data-fallback="after"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>`;
+  }
+  return compareSliderMarkup({
+    title: photo.title,
+    beforeSrc: imageSrc(photo.beforeUrl, BEFORE_PLACEHOLDER),
+    afterSrc,
+  });
+}
+
 function photoCard(photo: Photo) {
   return html`
     <article class="card flex flex-col overflow-hidden">
@@ -25,29 +52,34 @@ function photoCard(photo: Photo) {
           <div class="flex flex-wrap items-center gap-2">
             <span class="badge bg-coastal-100 text-coastal-800">${roomLabel(photo.room)}</span>
             ${photo.sample ? html`<span class="badge badge-sample">Sample</span>` : ''}
+            ${
+              !photo.sample && !photo.published
+                ? html`<span
+                    class="badge badge-local"
+                    title="Saved in this browser only. Visitors can't see it."
+                    >This device only</span
+                  >`
+                : ''
+            }
           </div>
           <h3 class="mt-1.5 text-base font-bold text-slate-900">${photo.title}</h3>
         </div>
-        <button
-          type="button"
-          class="icon-btn hover:text-rose-600"
-          data-action="delete-photo"
-          data-id="${photo.id}"
-          aria-label="Delete ${photo.title}"
-        >
-          <i data-lucide="trash-2" class="size-4"></i>
-        </button>
+        ${
+          photo.published
+            ? ''
+            : html`<button
+                type="button"
+                class="icon-btn hover:text-rose-600"
+                data-action="delete-photo"
+                data-id="${photo.id}"
+                aria-label="Delete ${photo.title}"
+              >
+                <i data-lucide="trash-2" class="size-4"></i>
+              </button>`
+        }
       </header>
 
-      ${compareSliderMarkup({
-        title: photo.title,
-        beforeSrc: photo.beforeUrl
-          ? safeImageUrl(photo.beforeUrl, BEFORE_PLACEHOLDER)
-          : BEFORE_PLACEHOLDER,
-        afterSrc: photo.afterUrl
-          ? safeImageUrl(photo.afterUrl, AFTER_PLACEHOLDER)
-          : AFTER_PLACEHOLDER,
-      })}
+      ${photoMedia(photo)}
 
       <div class="flex flex-1 flex-col justify-between p-4">
         ${
@@ -91,15 +123,15 @@ export function initShowcase(store: Store): void {
   const filter = byId<HTMLSelectElement>('gallery-room-filter');
   const dialog = byId<HTMLDialogElement>('dialog-photo');
   const form = byId<HTMLFormElement>('photo-form');
+  const published = loadPublishedPhotos();
 
   fillSelect(filter, ROOMS, 'All areas');
   fillSelect(byId<HTMLSelectElement>('photo-room'), ROOMS);
 
   function render(): void {
     const room = filter.value;
-    const photos = store
-      .getState()
-      .photos.filter((p) => room === 'all' || p.room === room)
+    const photos = [...published, ...store.getState().photos]
+      .filter((p) => room === 'all' || p.room === room)
       .sort(byDateDesc);
     setHtml(grid, photos.length ? html`${photos.map(photoCard)}` : emptyState(room !== 'all'));
     hydrateIcons(grid);

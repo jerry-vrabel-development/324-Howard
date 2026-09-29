@@ -12,6 +12,8 @@ export interface Photo {
   afterUrl: string;
   date: IsoDate;
   sample?: boolean;
+  /** Committed to the repo (src/content/showcase.json) and shown to every visitor. Read-only in the app. */
+  published?: boolean;
 }
 
 export interface Task {
@@ -49,6 +51,6 @@ export interface AppData {
   activeTimer: ActiveTimer | null;
 }
 
-export type PhotoInput = Omit<Photo, 'id' | 'sample'>;
+export type PhotoInput = Omit<Photo, 'id' | 'sample' | 'published'>;
 export type TaskInput = Omit<Task, 'id' | 'sample' | 'loggedHours'>;
 export type JournalInput = Omit<JournalEntry, 'id' | 'sample'>;
