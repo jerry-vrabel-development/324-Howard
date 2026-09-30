@@ -17,16 +17,18 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-| Script            | What it does                                                      |
-| ----------------- | ----------------------------------------------------------------- |
-| `npm run dev`     | Start the dev server with hot reload                              |
-| `npm run build`   | Type-check and build to `dist/`                                   |
-| `npm run preview` | Serve the production build locally                                |
-| `npm test`        | Run the unit tests (Vitest)                                       |
-| `npm run lint`    | ESLint                                                            |
-| `npm run format`  | Prettier (write)                                                  |
-| `npm run check`   | Type-check, lint, format check and tests — what CI runs           |
-| `npm run photos`  | Optimize photos in `photos-inbox/` and add draft showcase entries |
+| Script                    | What it does                                                      |
+| ------------------------- | ----------------------------------------------------------------- |
+| `npm run dev`             | Start the dev server with hot reload                              |
+| `npm run build`           | Type-check and build to `dist/`                                   |
+| `npm run preview`         | Serve the production build locally                                |
+| `npm test`                | Run the unit tests (Vitest)                                       |
+| `npm run lint`            | ESLint                                                            |
+| `npm run format`          | Prettier (write)                                                  |
+| `npm run check`           | Type-check, lint, format check and tests — what CI runs           |
+| `npm run photos`          | Optimize photos in `photos-inbox/` and add draft showcase entries |
+| `npm run photos:prune`    | Remove showcase entries whose image files no longer exist         |
+| `npm run video -- <clip>` | Turn a video into the Home page background                        |
 
 ## Stack
 
@@ -42,6 +44,8 @@ src/
   config/constants.ts       Rooms, statuses, priorities, tags — one source of truth
   content/showcase.json     Published photos, shown to every visitor (committed)
   content/published.ts      Loads and validates showcase.json
+  content/home.json         Home page settings: background video, map pins
+  features/home/            Hero video and neighborhood map
   data/seed.ts              Optional sample data (flagged, removable)
   store/
     store.ts                Minimal observable store: update → persist → notify
@@ -60,6 +64,8 @@ src/
   utils/                    Safe HTML templating, dates, formatting, DOM helpers
   styles/main.css           Tailwind theme tokens and component classes
 scripts/photos.mjs          Resizes photos, strips GPS/EXIF, adds draft entries
+scripts/prune-photos.mjs    Removes entries pointing at missing images
+scripts/video.mjs           Encodes the Home background video, strips metadata
 public/photos/              Optimized published images (WebP)
 tests/                      Unit tests, including a check that showcase.json is valid
 ```
@@ -97,6 +103,30 @@ Published photos live in the repo and are deployed with the site, so every visit
 HEIC photos (the iPhone default) aren't supported by the image library. Set **Settings → Camera → Formats → Most Compatible** on the iPhone, or export as JPEG before copying.
 
 This is an interim setup: once the hosted backend is in place, photos will upload straight from a phone.
+
+## Home page
+
+The Home page has a full-width background video and a neighborhood map. Both are configured in `src/content/home.json`.
+
+### Background video
+
+```bash
+npm run video -- ~/Videos/house.mp4 --start 3 --duration 12
+```
+
+This takes a clip (default: the first 15 seconds), resizes it to 1280 px wide, removes the audio and **all metadata including GPS location**, and writes `public/video/hero.mp4` plus a poster frame, `public/video/hero-poster.webp`. It then points `home.json` at them. A slow, steady landscape shot of 8–15 seconds works best; aim for under 8 MB. ffmpeg is bundled via the `ffmpeg-static` package, so nothing extra needs installing.
+
+The video is muted and loops, has a pause button, pauses when you scroll past it or switch pages, and doesn't autoplay for visitors who have "reduce motion" turned on. Without a video, the poster or a plain gradient is shown.
+
+### Map
+
+The map uses Leaflet with OpenStreetMap tiles (no API key). To add the pin for the house, set `map.house` in `home.json`:
+
+```json
+"house": { "lat": 41.6000, "lng": -87.2500 }
+```
+
+To get the numbers, right-click the house in Google Maps (or long-press on a phone); the first line of the menu is the latitude and longitude. Add nearby spots to `map.places` in the same format with a `name` and `note`. `npm test` checks that every coordinate is valid.
 
 ## Upgrading from the single-file version
 

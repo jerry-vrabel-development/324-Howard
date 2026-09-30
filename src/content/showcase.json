@@ -1,3 +1,292 @@
 {
-  "photos": []
+  "photos": [
+    {
+      "id": "pub-removejunk-frontroom",
+      "room": "general",
+      "title": "Removejunk frontroom",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/removejunk-frontroom.webp",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "pub-removejunk-frontroom-stuff",
+      "room": "general",
+      "title": "Removejunk frontroom stuff",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/removejunk-frontroom-stuff.webp",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "pub-doordog",
+      "room": "general",
+      "title": "Doordog",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/doordog.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-removejunk-frontroom2",
+      "room": "general",
+      "title": "Removejunk frontroom2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/removejunk-frontroom2.webp",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "pub-goatnetting-down",
+      "room": "general",
+      "title": "Goat netting down",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/goatnetting-down.webp",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "pub-324-howard-sidesouth3",
+      "room": "general",
+      "title": "324 howard sidesouth3",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-sidesouth3.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-sidesouth2",
+      "room": "general",
+      "title": "324 howard sidesouth2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-sidesouth2.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-sidesouth",
+      "room": "general",
+      "title": "324 howard sidesouth",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-sidesouth.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-lookingnorth",
+      "room": "general",
+      "title": "324 howard lookingnorth",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-lookingnorth.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontwestwalkup",
+      "room": "general",
+      "title": "324 howard frontwestwalkup",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontwestwalkup.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontwest3",
+      "room": "general",
+      "title": "324 howard frontwest3",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontwest3.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontwest2",
+      "room": "general",
+      "title": "324 howard frontwest2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontwest2.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontwest",
+      "room": "general",
+      "title": "324 howard frontwest",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontwest.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontwalk",
+      "room": "general",
+      "title": "324 howard frontwalk",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontwalk.webp",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "pub-324-howard-frontsouthwest",
+      "room": "general",
+      "title": "324 howard frontsouthwest",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontsouthwest.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontsouth-sidewalk",
+      "room": "general",
+      "title": "324 howard frontsouth sidewalk",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontsouth-sidewalk.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontnorthwest",
+      "room": "general",
+      "title": "324 howard frontnorthwest",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontnorthwest.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-frontnorth-sidewalk",
+      "room": "general",
+      "title": "324 howard frontnorth sidewalk",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-frontnorth-sidewalk.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-fronthousesidewalk",
+      "room": "general",
+      "title": "324 howard fronthousesidewalk",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-fronthousesidewalk.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-driveeast",
+      "room": "general",
+      "title": "324 howard driveeast",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-driveeast.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backwest",
+      "room": "general",
+      "title": "324 howard backwest",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backwest.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backsouth",
+      "room": "general",
+      "title": "324 howard backsouth",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backsouth.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backnortheast3",
+      "room": "general",
+      "title": "324 howard backnortheast3",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backnortheast3.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backnortheast2",
+      "room": "general",
+      "title": "324 howard backnortheast2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backnortheast2.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backnortheast",
+      "room": "general",
+      "title": "324 howard backnortheast",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backnortheast.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backnorthwest2",
+      "room": "general",
+      "title": "324 howard backnorthwest2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backnorthwest2.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backnorthwest",
+      "room": "general",
+      "title": "324 howard backnorthwest",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backnorthwest.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backhouseeast",
+      "room": "general",
+      "title": "324 howard backhouseeast",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backhouseeast.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backfirepit",
+      "room": "general",
+      "title": "324 howard backfirepit",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backfirepit.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backeast2",
+      "room": "general",
+      "title": "324 howard backeast2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backeast2.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-backeast",
+      "room": "general",
+      "title": "324 howard backeast",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-backeast.webp",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "pub-324-howard-facingsouth",
+      "room": "general",
+      "title": "324 howard facingsouth",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/324-howard-facingsouth.webp",
+      "date": "2026-09-28"
+    }
+  ]
 }

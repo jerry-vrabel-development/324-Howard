@@ -150,6 +150,135 @@
   }
 }
 
+/* ---------- Layout ---------- */
+
+.page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding: 2rem 1rem;
+}
+@media (min-width: 640px) {
+  .page {
+    padding-inline: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: 2rem;
+  }
+}
+
+.nav-scroll {
+  scrollbar-width: none;
+}
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+.nav-scroll .tab {
+  flex-shrink: 0;
+}
+@media (max-width: 639px) {
+  .nav-scroll .tab {
+    padding-inline: 0.625rem;
+    font-size: 0.8125rem;
+  }
+  .nav-scroll .tab svg {
+    display: none;
+  }
+}
+
+/* ---------- Home hero ---------- */
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: min(88vh, 760px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgb(52 134 160 / 0.45), transparent 60%),
+    linear-gradient(160deg, var(--color-coastal-900), var(--color-slate-950) 70%);
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+}
+.hero-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Keeps white text readable over any footage. */
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgb(2 6 23 / 0.55), transparent 65%),
+    linear-gradient(to top, rgb(2 6 23 / 0.9), rgb(2 6 23 / 0.35) 55%, rgb(2 6 23 / 0.2));
+}
+
+.hero-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgb(15 23 42 / 0.6);
+  color: white;
+  backdrop-filter: blur(4px);
+}
+.hero-toggle:hover {
+  background: rgb(15 23 42 / 0.85);
+}
+
+/* ---------- Neighborhood map ---------- */
+
+.area-map {
+  height: 26rem;
+  overflow: hidden;
+  isolation: isolate; /* keep Leaflet's z-indexes below the sticky header and dialogs */
+}
+
+.map-pin span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 3px solid white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+.map-pin-house span {
+  background: var(--color-dune-600);
+}
+.map-pin-place span {
+  background: var(--color-coastal-600);
+}
+
+.legend-dot {
+  margin-top: 0.3rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+  border: 2px solid white;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px var(--color-slate-300);
+}
+.legend-dot-house {
+  background: var(--color-dune-600);
+}
+.legend-dot-place {
+  background: var(--color-coastal-600);
+}
+
 /* ---------- Before / after comparison ---------- */
 
 .compare {

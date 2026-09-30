@@ -5,6 +5,7 @@ import { hydrateIcons } from './components/icons';
 import { initTabs } from './components/tabs';
 import { errorMessage, showToast } from './components/toast';
 import { initBackupPanel } from './features/backup/backupPanel';
+import { initHome } from './features/home/home';
 import { initJournal } from './features/journal/journal';
 import { initShowcase } from './features/showcase/showcase';
 import { initTaskBoard } from './features/tasks/board';
@@ -20,7 +21,14 @@ const store = createStore(loadOrCreate(adapter), adapter, (err) =>
 );
 
 initDialogs();
-initTabs(byId('main-tabs'));
+const home = initHome();
+let firstTab = true;
+initTabs(byId('main-tabs'), (tab) => {
+  home.onTabChange(tab);
+  // Switching pages should start at the top, like following a link.
+  if (!firstTab) window.scrollTo({ top: 0 });
+  firstTab = false;
+});
 initShowcase(store);
 initTaskBoard(store);
 initTimerBanner(store);

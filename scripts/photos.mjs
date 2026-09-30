@@ -80,13 +80,20 @@ function uniqueName(base) {
   return name;
 }
 
+// Default camera names carry no meaning: Pixel "PXL_20260929_164448478.RAW-01.MP.COVER",
+// iPhone "IMG_1234", most cameras "DSC_0042". They get a placeholder title instead.
+const CAMERA_NAME = /^(pxl|img|dsc|dscn|dscf|mvimg|photo|image|signal)[-_ ]?\d/i;
+
 function parseName(file) {
-  const slug = slugify(path.parse(file).name);
+  // Drop camera suffixes after the first dot (".RAW-01.MP.COVER", ".PORTRAIT", …).
+  const base = path.parse(file).name.split('.')[0];
+  const slug = slugify(base);
   const match = /^(.*?)-(before|after)$/.exec(slug);
   const key = match ? match[1] : slug;
   const role = match ? match[2] : 'single';
   const room = ROOMS.find((r) => key === r || key.startsWith(`${r}-`)) ?? 'general';
-  return { slug, key, role, room, title: titleCase(key) };
+  const title = CAMERA_NAME.test(base) ? 'Untitled photo' : titleCase(key);
+  return { slug, key, role, room, title };
 }
 
 async function main() {

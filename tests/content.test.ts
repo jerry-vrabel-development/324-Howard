@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { loadPublishedPhotos, resolveAssetPath } from '../src/content/published';
 import content from '../src/content/showcase.json';
 import { toPhoto } from '../src/store/validate';
+import { parseHomeContent } from '../src/content/home';
+import homeContent from '../src/content/home.json';
 
 /**
  * Guards the committed showcase: CI fails if an entry is malformed or points
@@ -61,5 +63,31 @@ describe('published photos', () => {
     ]);
     expect(photos).toHaveLength(1);
     expect(photos[0]).toMatchObject({ published: true, afterUrl: '/photos/a.webp' });
+  });
+});
+
+describe('src/content/home.json', () => {
+  it('parses without dropping anything', () => {
+    const raw = homeContent as { map: { places: unknown[]; house: unknown } };
+    const parsed = parseHomeContent();
+    expect(parsed.map.places).toHaveLength(raw.map.places.length);
+    if (raw.map.house !== null)
+      expect(parsed.map.house, 'house needs numeric lat/lng').not.toBeNull();
+  });
+
+  it('only references hero files that exist in public/', () => {
+    const { hero } = parseHomeContent();
+    const missing = [hero.video, hero.poster].filter(
+      (p) => p && !existsSync(path.join('public', p)),
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it('rejects coordinates that are out of range or not numbers', () => {
+    const parsed = parseHomeContent({
+      map: { house: { lat: '41.6', lng: -87.2 }, places: [{ name: 'x', lat: 200, lng: 0 }] },
+    });
+    expect(parsed.map.house).toBeNull();
+    expect(parsed.map.places).toEqual([]);
   });
 });

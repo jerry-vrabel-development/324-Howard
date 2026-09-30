@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "video": "",
+    "poster": ""
+  },
+  "map": {
+    "zoom": 14,
+    "house": { "lat": 41.6036259, "lng": -87.264517 },
+    "places": [
+      {
+        "name": "Marquette Park and beach",
+        "note": "Lake Michigan beaches, dunes and lagoon",
+        "lat": 41.62,
+        "lng": -87.2533
+      }
+    ]
+  }
+}
