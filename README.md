@@ -8,6 +8,8 @@ A small web app for tracking the live-in restoration of a 1925 cottage in Miller
 
 Data is stored in the browser (localStorage). Use **Backup → Export backup** regularly; clearing site data or switching devices otherwise loses it.
 
+https://jerry-vrabel-development.github.io/324-Howard/#home
+
 ## Getting started
 
 Requires Node 22 (see `.nvmrc`).
