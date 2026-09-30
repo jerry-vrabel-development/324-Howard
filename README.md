@@ -47,6 +47,9 @@ src/
   content/home.json         Home page settings: background video, map pins
   features/home/            Hero video and neighborhood map
   data/seed.ts              Optional sample data (flagged, removable)
+  config/supabase.ts        Supabase URL and publishable key; VITE_DATA_MODE=local turns it off
+  backend/                  Supabase client, email sign-in, current viewer and role
+  services/                 DataService: localService (browser) and remoteService (Supabase)
   store/
     store.ts                Minimal observable store: update → persist → notify
     actions.ts              Pure state transitions (tasks, timer, photos, journal)
@@ -103,6 +106,22 @@ Published photos live in the repo and are deployed with the site, so every visit
 HEIC photos (the iPhone default) aren't supported by the image library. Set **Settings → Camera → Formats → Most Compatible** on the iPhone, or export as JPEG before copying.
 
 This is an interim setup: once the hosted backend is in place, photos will upload straight from a phone.
+
+## Backend (Supabase)
+
+The site stores tasks, time, journal entries and uploaded photos in Supabase, with sign-in by
+email. Setup, permissions and inviting the landowner are in [`supabase/README.md`](supabase/README.md).
+
+| Who       | Can                                                                             |
+| --------- | ------------------------------------------------------------------------------- |
+| Visitors  | See the Home page, published photos and journal entries                         |
+| Landowner | Also see tasks and hours; request tasks; leave feedback                         |
+| Admin     | Everything: tasks, timer, photo uploads from phone, journal, accepting requests |
+
+The connection details are in `src/config/supabase.ts` (both values are public by design).
+To work without Supabase, run `VITE_DATA_MODE=local npm run dev`: everything is then saved in
+the browser as before. After switching, sign in as admin and use **Backup → Copy to
+Supabase** once to move the browser's old tasks, hours and journal into the database.
 
 ## Home page
 

@@ -26,6 +26,13 @@ import {
   TriangleAlert,
   Upload,
   X,
+  Check,
+  CircleUserRound,
+  Lock,
+  LogIn,
+  LogOut,
+  MessageSquare,
+  Send,
   createIcons,
 } from 'lucide';
 
@@ -61,6 +68,13 @@ const ICONS = {
   TriangleAlert,
   Upload,
   X,
+  Check,
+  CircleUserRound,
+  Lock,
+  LogIn,
+  LogOut,
+  MessageSquare,
+  Send,
 };
 
 /** Replace <i data-lucide> placeholders inside `root` with SVGs. */

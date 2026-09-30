@@ -1,7 +1,9 @@
 import { JOURNAL_TAGS, isJournalTag, tagLabel } from '../../config/constants';
 import { confirmAction } from '../../components/confirm';
 import { hydrateIcons } from '../../components/icons';
-import { addJournalEntry, deleteJournalEntry } from '../../store/actions';
+import { attempt } from '../../components/attempt';
+import { onViewerChange } from '../../backend/viewer';
+import type { DataService } from '../../services/dataService';
 import type { Store } from '../../store/store';
 import type { AppData, JournalEntry } from '../../types';
 import { byDateDesc, formatDate, isIsoDate, todayIso } from '../../utils/dates';
@@ -26,6 +28,7 @@ function entryCard(entry: JournalEntry) {
           <button
             type="button"
             class="icon-btn hover:text-rose-600"
+            data-requires="admin"
             data-action="delete-entry"
             data-id="${entry.id}"
             aria-label="Delete entry: ${entry.title}"
@@ -40,7 +43,7 @@ function entryCard(entry: JournalEntry) {
   `;
 }
 
-export function initJournal(store: Store): void {
+export function initJournal(store: Store, service: DataService): void {
   const list = byId('journal-list');
   const count = byId('journal-count');
   const form = byId<HTMLFormElement>('journal-form');
@@ -68,16 +71,21 @@ export function initJournal(store: Store): void {
     const tag = formValue(form, 'tag');
     const date = formValue(form, 'date');
     if (!isJournalTag(tag)) return;
-    store.update((s) =>
-      addJournalEntry(s, {
-        title: formValue(form, 'title'),
-        tag,
-        content: formValue(form, 'content'),
-        date: isIsoDate(date) ? date : todayIso(),
-      }),
-    );
-    form.reset();
-    dateInput.value = todayIso();
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    void attempt(
+      () =>
+        service.addJournalEntry({
+          title: formValue(form, 'title'),
+          tag,
+          content: formValue(form, 'content'),
+          date: isIsoDate(date) ? date : todayIso(),
+        }),
+      { button: submit },
+    ).then((ok) => {
+      if (!ok) return;
+      form.reset();
+      dateInput.value = todayIso();
+    });
   });
 
   list.addEventListener('click', async (event) => {
@@ -86,12 +94,13 @@ export function initJournal(store: Store): void {
     );
     const entry = store.getState().journal.find((j) => j.id === button?.dataset.id);
     if (entry && (await confirmAction(`Delete "${entry.title}"? This can't be undone.`))) {
-      store.update((s) => deleteJournalEntry(s, entry.id));
+      await attempt(() => service.deleteJournalEntry(entry.id), { button });
     }
   });
 
   store.subscribe((state, previous) => {
     if (state.journal !== previous.journal) render(state);
   });
+  onViewerChange(() => render(store.getState()));
   render(store.getState());
 }

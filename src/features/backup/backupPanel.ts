@@ -1,33 +1,59 @@
+import { attempt } from '../../components/attempt';
 import { confirmAction } from '../../components/confirm';
 import { closeDialog, openDialog } from '../../components/dialog';
 import { errorMessage, showToast } from '../../components/toast';
+import { isAdmin } from '../../backend/viewer';
 import { hasSampleData, loadSampleData, removeSampleData } from '../../store/actions';
 import { downloadBackup, parseBackup } from '../../store/backup';
+import type { StorageAdapter } from '../../store/storage';
 import type { Store } from '../../store/store';
+import { importLocalData } from '../../services/remoteService';
+import type { DataService } from '../../services/dataService';
+import type { AppData } from '../../types';
 import { byId } from '../../utils/dom';
 import { pluralize } from '../../utils/format';
 
+const IMPORTED_KEY = 'howard324:imported-to-supabase';
+
 /**
- * Backup & data dialog: export/import a JSON backup and manage sample data.
- * Everything lives in this browser's storage, so exporting regularly is the
- * only protection against a cleared cache.
+ * Backup & data dialog.
+ *   Local mode:  export/import a JSON backup; manage sample data.
+ *   Supabase:    (admin) copy this browser's old data into Supabase, once.
  */
-export function initBackupPanel(store: Store): void {
+export function initBackupPanel(store: Store, service: DataService, local: StorageAdapter): void {
   const dialog = byId<HTMLDialogElement>('dialog-data');
   const fileInput = byId<HTMLInputElement>('import-file');
   const removeSamples = byId<HTMLButtonElement>('remove-samples');
+  const remote = service.mode === 'remote';
 
-  function syncSampleButton(): void {
+  // In Supabase mode the store holds Supabase data; the old browser data is read separately.
+  const browserData = (): AppData | null => local.load();
+
+  function syncButtons(): void {
     removeSamples.disabled = !hasSampleData(store.getState());
+    if (!remote) return;
+    const data = browserData();
+    const count = data
+      ? data.tasks.filter((t) => !t.sample).length +
+        data.journal.filter((j) => !j.sample).length +
+        data.photos.filter((p) => !p.sample && !p.published).length
+      : 0;
+    const done = localStorage.getItem(IMPORTED_KEY);
+    byId('migrate-summary').textContent = done
+      ? `Already copied on ${new Date(done).toLocaleDateString()}.`
+      : count
+        ? `${pluralize(count, 'record')} found in this browser.`
+        : 'Nothing to copy from this browser.';
+    byId<HTMLButtonElement>('migrate-data').disabled = !count || !isAdmin();
   }
 
   byId('open-data').addEventListener('click', () => {
-    syncSampleButton();
+    syncButtons();
     openDialog(dialog);
   });
 
   byId('export-data').addEventListener('click', () => {
-    downloadBackup(store.getState());
+    downloadBackup(remote ? (browserData() ?? store.getState()) : store.getState());
     showToast('Backup downloaded.');
   });
 
@@ -36,7 +62,7 @@ export function initBackupPanel(store: Store): void {
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
     fileInput.value = '';
-    if (!file) return;
+    if (!file || !service.replaceAll) return;
     try {
       const { data, skipped } = parseBackup(await file.text());
       const summary = `${pluralize(data.tasks.length, 'task')}, ${pluralize(data.photos.length, 'photo')}, ${pluralize(data.journal.length, 'journal entry', 'journal entries')}`;
@@ -45,7 +71,7 @@ export function initBackupPanel(store: Store): void {
         'Replace data',
       );
       if (!ok) return;
-      store.update(() => data);
+      await service.replaceAll(data);
       closeDialog(dialog);
       showToast(
         skipped
@@ -57,20 +83,47 @@ export function initBackupPanel(store: Store): void {
     }
   });
 
+  byId('migrate-data').addEventListener('click', async (event) => {
+    const data = browserData();
+    if (!data) return;
+    const again = localStorage.getItem(IMPORTED_KEY)
+      ? ' You already did this once; doing it again creates duplicates.'
+      : '';
+    if (
+      !(await confirmAction(
+        `Copy this browser's tasks, hours, journal and photo links into Supabase?${again}`,
+        'Copy',
+      ))
+    ) {
+      return;
+    }
+    await attempt(
+      async () => {
+        const result = await importLocalData(data);
+        localStorage.setItem(IMPORTED_KEY, new Date().toISOString());
+        await service.refresh();
+        showToast(
+          `Copied ${pluralize(result.tasks, 'task')} (${result.hours}h), ${pluralize(result.journal, 'journal entry', 'journal entries')} and ${pluralize(result.photos, 'photo')}.`,
+        );
+        syncButtons();
+      },
+      { button: event.currentTarget as HTMLButtonElement },
+    );
+  });
+
   removeSamples.addEventListener('click', async () => {
     if (await confirmAction('Remove all records marked "Sample"?', 'Remove samples')) {
       store.update(removeSampleData);
-      syncSampleButton();
+      syncButtons();
       showToast('Sample data removed.');
     }
   });
 
-  // "Load sample data" buttons can appear in any empty state.
   document.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest('[data-action="load-samples"]');
-    if (!button) return;
+    if (!button || remote) return;
     store.update(loadSampleData);
-    syncSampleButton();
+    syncButtons();
     closeDialog(dialog);
   });
 }

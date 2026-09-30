@@ -20,6 +20,7 @@
     "photos:prune": "node scripts/prune-photos.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "leaflet": "^1.9.4",
     "lucide": "1.48.0"
   },

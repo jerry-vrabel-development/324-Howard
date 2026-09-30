@@ -96,12 +96,19 @@
           <button
             type="button"
             id="open-data"
+            data-requires="admin"
             class="flex shrink-0 items-center gap-2 rounded-xl px-2 py-2.5 text-sm sm:px-3 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
             aria-label="Backup and data"
           >
             <i data-lucide="database-backup" class="size-4"></i>
             <span class="hidden sm:inline">Backup</span>
           </button>
+          <button
+            type="button"
+            id="account-button"
+            data-requires="remote"
+            class="flex shrink-0 items-center gap-2 rounded-xl px-2 py-2.5 text-sm text-slate-300 transition-colors hover:bg-slate-800 hover:text-white sm:px-3"
+          ></button>
         </div>
       </div>
     </header>
@@ -232,7 +239,7 @@
           <div class="flex flex-wrap items-center gap-3">
             <label for="gallery-room-filter" class="sr-only">Filter by area</label>
             <select id="gallery-room-filter" class="field w-auto"></select>
-            <button type="button" id="add-photo" class="btn btn-primary">
+            <button type="button" id="add-photo" class="btn btn-primary" data-requires="admin">
               <i data-lucide="plus" class="size-4"></i> Add transformation
             </button>
           </div>
@@ -248,7 +255,15 @@
         class="page space-y-8"
         hidden
       >
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="empty-state" data-requires="visitor">
+          <i data-lucide="lock" class="mx-auto mb-3 size-10 text-slate-400"></i>
+          <p class="font-medium text-slate-700">The task board is private.</p>
+          <p class="mt-1 text-sm">
+            If you're part of the project, sign in with the email you were invited with.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-requires="member">
           <div class="card flex items-center gap-4 p-5">
             <div class="rounded-xl bg-coastal-50 p-3 text-coastal-600">
               <i data-lucide="circle-check" class="size-6"></i>
@@ -320,8 +335,32 @@
           </div>
         </div>
 
+        <!-- Landowner requests -->
+        <section
+          id="requests-section"
+          data-requires="member"
+          aria-labelledby="requests-heading"
+          hidden
+        >
+          <div class="mb-3 flex items-center gap-2">
+            <h3 id="requests-heading" class="font-bold text-slate-800">Requests</h3>
+            <span
+              id="requests-count"
+              class="rounded-full bg-dune-100 px-2.5 py-0.5 text-xs font-semibold text-dune-800"
+              >0</span
+            >
+          </div>
+          <div
+            id="task-requests"
+            class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          ></div>
+        </section>
+
         <!-- Filters -->
-        <div class="card flex flex-col justify-between gap-4 p-6 md:flex-row md:items-center">
+        <div
+          class="card flex flex-col justify-between gap-4 p-6 md:flex-row md:items-center"
+          data-requires="member"
+        >
           <div class="relative w-full max-w-md">
             <label for="task-search" class="sr-only">Search tasks</label>
             <i
@@ -340,7 +379,15 @@
             <select id="task-room-filter" class="field w-auto p-2"></select>
             <label for="task-priority-filter" class="sr-only">Filter by priority</label>
             <select id="task-priority-filter" class="field w-auto p-2"></select>
-            <button type="button" id="add-task" class="btn btn-primary">
+            <button
+              type="button"
+              id="request-task"
+              class="btn btn-primary"
+              data-requires="landowner"
+            >
+              <i data-lucide="send" class="size-4"></i> Request a task
+            </button>
+            <button type="button" id="add-task" class="btn btn-primary" data-requires="admin">
               <i data-lucide="plus" class="size-4"></i> New task
             </button>
           </div>
@@ -357,7 +404,7 @@
         </div>
 
         <!-- Board -->
-        <div id="task-board" class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div id="task-board" class="grid grid-cols-1 gap-6 lg:grid-cols-3" data-requires="member">
           <section
             class="flex flex-col rounded-2xl border border-slate-200 bg-slate-100/70 p-4"
             aria-labelledby="heading-todo"
@@ -452,7 +499,7 @@
               </div>
             </div>
 
-            <form id="journal-form" class="card space-y-4 p-6">
+            <form id="journal-form" class="card space-y-4 p-6" data-requires="admin">
               <h2 class="flex items-center gap-2 text-lg font-bold text-slate-900">
                 <i data-lucide="pen-tool" class="size-5 text-coastal-600"></i> New journal entry
               </h2>
@@ -511,8 +558,11 @@
     </main>
 
     <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-      Published photos are part of the site. Anything you add here is stored in this browser only;
-      use Backup to export a copy.
+      <span data-requires="local">
+        Published photos are part of the site. Anything you add here is stored in this browser only;
+        use Backup to export a copy.
+      </span>
+      <span data-requires="remote">324 S Howard St · Miller Beach, Gary, Indiana</span>
     </footer>
 
     <!-- ========== Dialogs ========== -->
@@ -547,30 +597,60 @@
             placeholder="Living room floor refinish"
           />
         </div>
-        <div>
-          <label for="photo-before">Before photo URL (optional)</label>
-          <input
-            id="photo-before"
-            name="beforeUrl"
-            type="url"
-            class="field"
-            placeholder="https://…"
-          />
+        <div class="space-y-4" data-requires="local">
+          <div>
+            <label for="photo-before">Before photo URL (optional)</label>
+            <input
+              id="photo-before"
+              name="beforeUrl"
+              type="url"
+              class="field"
+              placeholder="https://…"
+            />
+          </div>
+          <div>
+            <label for="photo-after">After photo URL</label>
+            <input
+              id="photo-after"
+              name="afterUrl"
+              type="url"
+              class="field"
+              placeholder="https://…"
+            />
+          </div>
+          <p class="text-xs text-slate-500">
+            Leave the before URL blank for a single progress photo. Photos added here are saved in
+            this browser only; to publish photos for every visitor, see “Adding photos” in the
+            README.
+          </p>
         </div>
-        <div>
-          <label for="photo-after">After photo URL</label>
-          <input
-            id="photo-after"
-            name="afterUrl"
-            type="url"
-            class="field"
-            placeholder="https://…"
-          />
+        <div class="space-y-4" data-requires="remote">
+          <div>
+            <label for="photo-after-file">Photo (the "after", or a single progress photo)</label>
+            <input
+              id="photo-after-file"
+              name="afterFile"
+              type="file"
+              accept="image/*"
+              class="field"
+            />
+          </div>
+          <div>
+            <label for="photo-before-file"
+              >Before photo (optional, adds the comparison slider)</label
+            >
+            <input
+              id="photo-before-file"
+              name="beforeFile"
+              type="file"
+              accept="image/*"
+              class="field"
+            />
+          </div>
+          <p class="text-xs text-slate-500">
+            Photos are resized and their location data removed on this device before uploading.
+          </p>
         </div>
-        <p class="text-xs text-slate-500">
-          Leave the before URL blank for a single progress photo. Photos added here are saved in
-          this browser only; to publish photos for every visitor, see “Adding photos” in the README.
-        </p>
         <div>
           <label for="photo-description">What changed</label>
           <textarea
@@ -619,7 +699,7 @@
             <select id="task-priority" name="priority" required class="field"></select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4" data-requires="admin">
           <div>
             <label for="task-status">Status</label>
             <select id="task-status" name="status" required class="field"></select>
@@ -662,9 +742,27 @@
         </button>
       </div>
       <div class="space-y-6 p-6 text-sm text-slate-600">
-        <p>
+        <div
+          class="space-y-3 rounded-xl border border-coastal-100 bg-coastal-50/60 p-4"
+          data-requires="remote"
+        >
+          <h3 class="font-semibold text-slate-800">Copy this browser's data to Supabase</h3>
+          <p>
+            Tasks, logged hours, journal entries and photo links from before Supabase are still
+            saved in this browser. Copy them over once; each task's hours become one past work
+            session.
+          </p>
+          <p id="migrate-summary" class="text-xs font-medium text-slate-500"></p>
+          <button type="button" id="migrate-data" class="btn btn-primary">
+            <i data-lucide="upload" class="size-4"></i> Copy to Supabase
+          </button>
+        </div>
+        <p data-requires="local">
           Everything is saved in this browser only. Clearing site data or switching devices loses
           it, so export a backup regularly.
+        </p>
+        <p data-requires="remote">
+          Download a JSON copy of this browser's old data before or after copying it.
         </p>
         <div class="flex flex-wrap gap-3">
           <button type="button" id="export-data" class="btn btn-primary">
@@ -673,13 +771,14 @@
           <button
             type="button"
             id="import-data"
+            data-requires="local"
             class="btn border border-slate-300 text-slate-700 hover:bg-slate-50"
           >
             <i data-lucide="upload" class="size-4"></i> Import backup
           </button>
           <input type="file" id="import-file" accept="application/json,.json" hidden />
         </div>
-        <div class="border-t border-slate-100 pt-5">
+        <div class="border-t border-slate-100 pt-5" data-requires="local">
           <h3 class="font-semibold text-slate-800">Sample data</h3>
           <p class="mt-1">
             Sample records are marked with a "Sample" badge and use stock photos, not this house.
@@ -697,6 +796,110 @@
             </button>
           </div>
         </div>
+      </div>
+    </dialog>
+
+    <dialog id="dialog-signin" class="dialog max-w-md" aria-labelledby="signin-title">
+      <div class="dialog-header">
+        <h2 id="signin-title" class="text-lg font-bold text-slate-900">Sign in</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <i data-lucide="x" class="size-5"></i>
+        </button>
+      </div>
+      <form id="signin-email-form" class="space-y-4 p-6">
+        <p class="text-sm text-slate-600">
+          For people working on the project. Enter the email you were invited with and we'll send
+          you a sign-in link.
+        </p>
+        <div>
+          <label for="signin-email">Email</label>
+          <input
+            id="signin-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            class="field"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Email me a sign-in link</button>
+      </form>
+      <form id="signin-code-form" class="space-y-4 p-6" hidden>
+        <p class="text-sm text-slate-600">
+          Check <strong id="signin-sent-to"></strong>. Open the link in the email on this device, or
+          type the code from the email here.
+        </p>
+        <div>
+          <label for="signin-code">Code</label>
+          <input
+            id="signin-code"
+            name="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9 ]{6,12}"
+            required
+            class="field font-mono tracking-widest"
+          />
+        </div>
+        <div class="flex justify-between gap-3">
+          <button type="button" id="signin-back" class="btn btn-ghost">
+            Use a different email
+          </button>
+          <button type="submit" class="btn btn-primary">Sign in</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dialog-account" class="dialog max-w-sm" aria-labelledby="account-name">
+      <div class="dialog-header">
+        <div>
+          <h2 id="account-name" class="text-lg font-bold text-slate-900"></h2>
+          <p id="account-email" class="text-sm text-slate-500"></p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <i data-lucide="x" class="size-5"></i>
+        </button>
+      </div>
+      <div class="space-y-4 p-6 text-sm text-slate-600">
+        <p>Role: <strong id="account-role" class="text-slate-800"></strong></p>
+        <p id="account-no-access" class="rounded-lg bg-amber-50 p-3 text-amber-800" hidden>
+          You're signed in, but you haven't been given access yet. Ask Jerry to add you.
+        </p>
+        <button type="button" id="sign-out" class="btn btn-ghost w-full border border-slate-200">
+          <i data-lucide="log-out" class="size-4"></i> Sign out
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="dialog-feedback" class="dialog" aria-labelledby="feedback-heading">
+      <div class="dialog-header">
+        <div>
+          <h2 id="feedback-heading" class="text-lg font-bold text-slate-900">Feedback</h2>
+          <p id="feedback-title" class="text-sm text-slate-500"></p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <i data-lucide="x" class="size-5"></i>
+        </button>
+      </div>
+      <div class="space-y-4 p-6">
+        <ul id="feedback-list" class="max-h-80 space-y-3 overflow-y-auto"></ul>
+        <form id="feedback-form" class="space-y-3">
+          <label for="feedback-body" class="sr-only">Add feedback</label>
+          <textarea
+            id="feedback-body"
+            name="body"
+            rows="3"
+            maxlength="4000"
+            required
+            class="field"
+            placeholder="Questions, suggestions, notes"
+          ></textarea>
+          <div class="flex justify-end">
+            <button type="submit" class="btn btn-primary">
+              <i data-lucide="send" class="size-4"></i> Post
+            </button>
+          </div>
+        </form>
       </div>
     </dialog>
 

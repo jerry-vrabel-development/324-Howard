@@ -1,4 +1,9 @@
-import type { Priority, RoomId, TaskStatus } from '../../config/constants';
+import {
+  isBoardStatus,
+  type BoardStatus,
+  type Priority,
+  type RoomId,
+} from '../../config/constants';
 import type { Task } from '../../types';
 
 export interface TaskFilters {
@@ -25,9 +30,10 @@ export function filterTasks(
   });
 }
 
-export function groupByStatus(tasks: Task[]): Record<TaskStatus, Task[]> {
-  const groups: Record<TaskStatus, Task[]> = { todo: [], 'in-progress': [], completed: [] };
-  for (const t of tasks) groups[t.status].push(t);
+/** Board columns only; requested/declined tasks are shown separately. */
+export function groupByStatus(tasks: Task[]): Record<BoardStatus, Task[]> {
+  const groups: Record<BoardStatus, Task[]> = { todo: [], 'in-progress': [], completed: [] };
+  for (const t of tasks) if (isBoardStatus(t.status)) groups[t.status].push(t);
   for (const list of Object.values(groups)) {
     list.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
   }
@@ -41,8 +47,9 @@ export interface TaskStats {
   pending: number;
 }
 
-/** Stats always describe the whole project, not the current filter. */
-export function computeStats(tasks: Task[]): TaskStats {
+/** Stats always describe the whole project (board tasks only), not the current filter. */
+export function computeStats(allTasks: Task[]): TaskStats {
+  const tasks = allTasks.filter((t) => isBoardStatus(t.status));
   const completed = tasks.filter((t) => t.status === 'completed').length;
   const sum = (pick: (t: Task) => number) =>
     Math.round(tasks.reduce((acc, t) => acc + pick(t), 0) * 100) / 100;

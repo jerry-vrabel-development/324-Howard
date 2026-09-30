@@ -1,4 +1,6 @@
-import { elapsedMs, stopTimer } from '../../store/actions';
+import { elapsedMs } from '../../store/actions';
+import { attempt } from '../../components/attempt';
+import type { DataService } from '../../services/dataService';
 import type { Store } from '../../store/store';
 import type { AppData } from '../../types';
 import { roomLabel } from '../../config/constants';
@@ -10,7 +12,7 @@ import { formatDuration } from '../../utils/format';
  * elapsed time is always computed from the persisted start timestamp, so a
  * throttled background tab or a page reload never loses time.
  */
-export function initTimerBanner(store: Store): void {
+export function initTimerBanner(store: Store, service: DataService): void {
   const banner = byId('active-timer');
   const title = byId('active-timer-task');
   const display = byId('active-timer-display');
@@ -33,7 +35,7 @@ export function initTimerBanner(store: Store): void {
   }
 
   byId('stop-timer').addEventListener('click', () => {
-    store.update((s) => stopTimer(s, Date.now()));
+    void attempt(() => service.stopTimer(), { button: byId<HTMLButtonElement>('stop-timer') });
   });
 
   store.subscribe((state, previous) => {

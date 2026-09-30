@@ -2,7 +2,9 @@ import { ROOMS, isRoomId, roomLabel } from '../../config/constants';
 import { confirmAction } from '../../components/confirm';
 import { closeDialog, openDialog } from '../../components/dialog';
 import { hydrateIcons } from '../../components/icons';
-import { addPhoto, deletePhoto } from '../../store/actions';
+import { attempt } from '../../components/attempt';
+import { getViewer, onViewerChange } from '../../backend/viewer';
+import type { DataService } from '../../services/dataService';
 import type { Store } from '../../store/store';
 import { loadPublishedPhotos } from '../../content/published';
 import type { Photo } from '../../types';
@@ -53,7 +55,7 @@ function photoCard(photo: Photo) {
             <span class="badge bg-coastal-100 text-coastal-800">${roomLabel(photo.room)}</span>
             ${photo.sample ? html`<span class="badge badge-sample">Sample</span>` : ''}
             ${
-              !photo.sample && !photo.published
+              !photo.sample && !photo.published && getViewer().mode === 'local'
                 ? html`<span
                     class="badge badge-local"
                     title="Saved in this browser only. Visitors can't see it."
@@ -65,7 +67,7 @@ function photoCard(photo: Photo) {
           <h3 class="mt-1.5 text-base font-bold text-slate-900">${photo.title}</h3>
         </div>
         ${
-          photo.published
+          photo.published || getViewer().role !== 'admin'
             ? ''
             : html`<button
                 type="button"
@@ -103,13 +105,23 @@ function emptyState(filtered: boolean) {
         ${filtered ? 'No transformations for this area yet.' : 'No transformations yet.'}
       </p>
       <div class="mt-4 flex flex-wrap justify-center gap-2">
-        <button type="button" class="btn btn-primary btn-sm" data-action="add-photo">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          data-action="add-photo"
+          data-requires="admin"
+        >
           <i data-lucide="plus" class="size-3.5"></i> Add transformation
         </button>
         ${
           filtered
             ? ''
-            : html`<button type="button" class="btn btn-ghost btn-sm" data-action="load-samples">
+            : html`<button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                data-action="load-samples"
+                data-requires="local"
+              >
                 Load sample data
               </button>`
         }
@@ -118,7 +130,7 @@ function emptyState(filtered: boolean) {
   `;
 }
 
-export function initShowcase(store: Store): void {
+export function initShowcase(store: Store, service: DataService): void {
   const grid = byId('showcase-grid');
   const filter = byId<HTMLSelectElement>('gallery-room-filter');
   const dialog = byId<HTMLDialogElement>('dialog-photo');
@@ -154,7 +166,7 @@ export function initShowcase(store: Store): void {
     if (button.dataset.action === 'delete-photo' && button.dataset.id) {
       const photo = store.getState().photos.find((p) => p.id === button.dataset.id);
       if (photo && (await confirmAction(`Delete "${photo.title}"? This can't be undone.`))) {
-        store.update((s) => deletePhoto(s, photo.id));
+        await attempt(() => service.deletePhoto(photo.id), { button });
       }
     }
   });
@@ -164,17 +176,29 @@ export function initShowcase(store: Store): void {
     const room = formValue(form, 'room');
     const date = formValue(form, 'date');
     if (!isRoomId(room)) return;
-    store.update((s) =>
-      addPhoto(s, {
-        room,
-        title: formValue(form, 'title'),
-        description: formValue(form, 'description'),
-        beforeUrl: formValue(form, 'beforeUrl'),
-        afterUrl: formValue(form, 'afterUrl'),
-        date: isIsoDate(date) ? date : todayIso(),
-      }),
-    );
-    closeDialog(dialog);
+    const file = (name: string) =>
+      form.querySelector<HTMLInputElement>(`input[name="${name}"]`)?.files?.[0] ?? null;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const label = submit?.textContent ?? '';
+    if (submit && service.mode === 'remote') submit.textContent = 'Uploading…';
+
+    void attempt(
+      () =>
+        service.addPhoto({
+          room,
+          title: formValue(form, 'title'),
+          description: formValue(form, 'description'),
+          date: isIsoDate(date) ? date : todayIso(),
+          beforeFile: file('beforeFile'),
+          afterFile: file('afterFile'),
+          beforeUrl: formValue(form, 'beforeUrl'),
+          afterUrl: formValue(form, 'afterUrl'),
+        }),
+      { button: submit, success: service.mode === 'remote' ? 'Photo uploaded.' : undefined },
+    ).then((ok) => {
+      if (submit) submit.textContent = label;
+      if (ok) closeDialog(dialog);
+    });
   });
 
   // Only re-render when photos actually changed, so slider positions survive
@@ -182,5 +206,6 @@ export function initShowcase(store: Store): void {
   store.subscribe((state, previous) => {
     if (state.photos !== previous.photos) render();
   });
+  onViewerChange(render);
   render();
 }

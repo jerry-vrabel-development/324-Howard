@@ -150,6 +150,18 @@
   }
 }
 
+/* ---------- Role-based visibility (see src/backend/viewer.ts) ----------
+   UI only: the database enforces the real permissions. */
+
+body:not([data-role='admin']) [data-requires='admin'],
+body:not([data-role='landowner']) [data-requires='landowner'],
+body:not([data-role='visitor']) [data-requires='visitor'],
+body[data-role='visitor'] [data-requires='member'],
+body:not([data-mode='remote']) [data-requires='remote'],
+body:not([data-mode='local']) [data-requires='local'] {
+  display: none !important;
+}
+
 /* ---------- Layout ---------- */
 
 .page {

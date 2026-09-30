@@ -26,6 +26,18 @@ export interface Task {
   loggedHours: number;
   notes: string;
   sample?: boolean;
+  /** Supabase only: who asked for it (landowner requests), and how much feedback it has. */
+  requestedBy?: string;
+  commentCount?: number;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
 }
 
 export interface JournalEntry {

@@ -2,21 +2,24 @@ import {
   PRIORITIES,
   ROOMS,
   TASK_STATUSES,
+  isBoardStatus,
   isPriority,
   isRoomId,
-  isTaskStatus,
   roomLabel,
-  type TaskStatus,
+  type BoardStatus,
 } from '../../config/constants';
+import { attempt } from '../../components/attempt';
 import { confirmAction } from '../../components/confirm';
 import { closeDialog, openDialog } from '../../components/dialog';
 import { hydrateIcons } from '../../components/icons';
-import { addTask, deleteTask, setTaskStatus, toggleTimer, updateTask } from '../../store/actions';
+import { getViewer, onViewerChange } from '../../backend/viewer';
+import type { DataService } from '../../services/dataService';
 import type { Store } from '../../store/store';
 import type { AppData, Task } from '../../types';
 import { byId, fillSelect, formValue } from '../../utils/dom';
 import { formatHours } from '../../utils/format';
 import { html, setHtml } from '../../utils/html';
+import { initFeedback } from './feedback';
 import {
   DEFAULT_FILTERS,
   computeStats,
@@ -24,21 +27,69 @@ import {
   groupByStatus,
   type TaskFilters,
 } from './filters';
-import { taskCard } from './taskCard';
+import { priorityBadge, taskCard } from './taskCard';
 
-const COLUMN_EMPTY: Record<TaskStatus, string> = {
+const COLUMN_EMPTY: Record<BoardStatus, string> = {
   todo: 'Nothing queued.',
   'in-progress': 'Nothing in progress.',
   completed: 'Nothing finished yet.',
 };
 
-export function initTaskBoard(store: Store): void {
+function requestCard(task: Task) {
+  const viewer = getViewer();
+  const admin = viewer.role === 'admin';
+  const mine = task.requestedBy === viewer.userId;
+  const declined = task.status === 'declined';
+  return html`
+    <article class="card space-y-2 p-4 ${declined ? 'opacity-70' : ''}" data-task-id="${task.id}">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5">
+          ${priorityBadge(task)}
+          ${declined ? html`<span class="badge bg-slate-200 text-slate-700">Declined</span>` : ''}
+        </div>
+        <span class="text-xs font-medium text-slate-500">${roomLabel(task.room)}</span>
+      </div>
+      <h4 class="text-sm font-bold text-slate-800">${task.title}</h4>
+      ${task.notes ? html`<p class="text-xs text-slate-600">${task.notes}</p>` : ''}
+      <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+          data-action="feedback"
+        >
+          <i data-lucide="message-square" class="size-3.5"></i> ${task.commentCount ?? 0}
+        </button>
+        ${
+          admin && !declined
+            ? html`<button type="button" class="btn btn-ghost btn-sm" data-action="decline">
+                  Decline
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" data-action="accept">
+                  <i data-lucide="check" class="size-3.5"></i> Add to board
+                </button>`
+            : ''
+        }
+        ${
+          !admin && mine && !declined
+            ? html`<button type="button" class="btn btn-ghost btn-sm" data-action="withdraw">
+                Withdraw
+              </button>`
+            : ''
+        }
+      </div>
+    </article>
+  `;
+}
+
+export function initTaskBoard(store: Store, service: DataService): void {
   const search = byId<HTMLInputElement>('task-search');
   const roomFilter = byId<HTMLSelectElement>('task-room-filter');
   const priorityFilter = byId<HTMLSelectElement>('task-priority-filter');
   const board = byId('task-board');
+  const requests = byId('task-requests');
   const dialog = byId<HTMLDialogElement>('dialog-task');
   const form = byId<HTMLFormElement>('task-form');
+  const openFeedback = initFeedback(service);
 
   fillSelect(roomFilter, ROOMS, 'All rooms');
   fillSelect(priorityFilter, PRIORITIES, 'All priorities');
@@ -68,8 +119,26 @@ export function initTaskBoard(store: Store): void {
       `${formatHours(stats.estimatedHours)} / ${formatHours(stats.loggedHours)}`;
   }
 
+  function renderRequests(state: AppData): void {
+    const viewer = getViewer();
+    // Admin sees pending requests; the landowner also sees their declined ones.
+    const list = state.tasks.filter(
+      (t) =>
+        t.status === 'requested' ||
+        (t.status === 'declined' && viewer.role === 'landowner' && t.requestedBy === viewer.userId),
+    );
+    byId('requests-section').hidden = list.length === 0;
+    byId('requests-count').textContent = String(
+      list.filter((t) => t.status === 'requested').length,
+    );
+    setHtml(requests, html`${list.map(requestCard)}`);
+    hydrateIcons(requests);
+  }
+
   function render(state: AppData): void {
+    const viewer = getViewer();
     renderStats(state);
+    renderRequests(state);
     const groups = groupByStatus(filterTasks(state.tasks, filters, roomLabel));
     const activeId = state.activeTimer?.taskId;
 
@@ -80,38 +149,50 @@ export function initTaskBoard(store: Store): void {
       setHtml(
         column,
         tasks.length
-          ? html`${tasks.map((t) => taskCard(t, t.id === activeId))}`
+          ? html`${tasks.map((t) => taskCard(t, t.id === activeId, viewer))}`
           : html`<p class="px-1 py-6 text-center text-xs text-slate-500">${COLUMN_EMPTY[id]}</p>`,
       );
       hydrateIcons(column);
     }
 
-    byId('tasks-empty').hidden = state.tasks.length > 0;
+    byId('tasks-empty').hidden =
+      state.tasks.some((t) => isBoardStatus(t.status)) || viewer.role !== 'admin';
   }
 
   function openForm(task?: Task): void {
+    const requesting = getViewer().role === 'landowner';
     form.reset();
-    byId('task-dialog-title').textContent = task ? 'Edit task' : 'New task';
-    byId('task-submit').textContent = task ? 'Save changes' : 'Create task';
+    form.dataset.request = String(requesting);
+    byId('task-dialog-title').textContent = task
+      ? 'Edit task'
+      : requesting
+        ? 'Request a task'
+        : 'New task';
+    byId('task-submit').textContent = task
+      ? 'Save changes'
+      : requesting
+        ? 'Send request'
+        : 'Create task';
     const set = (id: string, value: string) => (byId<HTMLInputElement>(id).value = value);
     set('task-id', task?.id ?? '');
     set('task-title', task?.title ?? '');
     set('task-room', task?.room ?? ROOMS[0].id);
     set('task-priority', task?.priority ?? 'medium');
-    set('task-status', task?.status ?? 'todo');
+    set('task-status', task && isBoardStatus(task.status) ? task.status : 'todo');
     set('task-estimate', String(task?.estimatedHours ?? 4));
     set('task-notes', task?.notes ?? '');
     openDialog(dialog);
   }
 
-  // ---- Events (one delegated listener per concern) ----
+  // ---- Events ----
 
   search.addEventListener('input', readFilters);
   roomFilter.addEventListener('change', readFilters);
   priorityFilter.addEventListener('change', readFilters);
   byId('add-task').addEventListener('click', () => openForm());
+  byId('request-task').addEventListener('click', () => openForm());
 
-  board.addEventListener('click', async (event) => {
+  async function handleAction(event: Event): Promise<void> {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-action]');
     const id = button?.closest<HTMLElement>('[data-task-id]')?.dataset.taskId;
     if (!button || !id) return;
@@ -120,25 +201,50 @@ export function initTaskBoard(store: Store): void {
 
     switch (button.dataset.action) {
       case 'toggle-timer':
-        store.update((s) => toggleTimer(s, id, Date.now()));
+        await attempt(() => service.toggleTimer(id), { button });
         break;
       case 'edit-task':
         openForm(task);
         break;
+      case 'feedback':
+        openFeedback(task);
+        break;
+      case 'accept':
+        await attempt(() => service.decideRequest(id, true), {
+          button,
+          success: 'Added to the board.',
+        });
+        break;
+      case 'decline':
+        if (await confirmAction(`Decline "${task.title}"?`, 'Decline')) {
+          await attempt(() => service.decideRequest(id, false), { button });
+        }
+        break;
+      case 'withdraw':
       case 'delete-task':
-        if (await confirmAction(`Delete "${task.title}"? Logged time for it will be lost.`)) {
-          store.update((s) => deleteTask(s, id));
+        if (
+          await confirmAction(
+            button.dataset.action === 'withdraw'
+              ? `Withdraw your request "${task.title}"?`
+              : `Delete "${task.title}"? Logged time for it will be lost.`,
+            button.dataset.action === 'withdraw' ? 'Withdraw' : 'Delete',
+          )
+        ) {
+          await attempt(() => service.deleteTask(id), { button });
         }
         break;
     }
-  });
+  }
+
+  board.addEventListener('click', (e) => void handleAction(e));
+  requests.addEventListener('click', (e) => void handleAction(e));
 
   board.addEventListener('change', (event) => {
     const select = event.target as HTMLSelectElement;
     const id = select.closest<HTMLElement>('[data-task-id]')?.dataset.taskId;
-    if (select.dataset.action === 'set-status' && id && isTaskStatus(select.value)) {
+    if (select.dataset.action === 'set-status' && id && isBoardStatus(select.value)) {
       const status = select.value;
-      store.update((s) => setTaskStatus(s, id, status, Date.now()));
+      void attempt(() => service.setTaskStatus(id, status));
     }
   });
 
@@ -147,19 +253,33 @@ export function initTaskBoard(store: Store): void {
     const room = formValue(form, 'room');
     const priority = formValue(form, 'priority');
     const status = formValue(form, 'status');
-    if (!isRoomId(room) || !isPriority(priority) || !isTaskStatus(status)) return;
+    if (!isRoomId(room) || !isPriority(priority) || !isBoardStatus(status)) return;
 
-    const input = {
+    const base = {
       title: formValue(form, 'title'),
       room,
       priority,
-      status,
-      estimatedHours: Math.max(0, Number(formValue(form, 'estimatedHours')) || 0),
       notes: formValue(form, 'notes'),
     };
     const id = formValue(form, 'id');
-    store.update((s) => (id ? updateTask(s, id, input, Date.now()) : addTask(s, input)));
-    closeDialog(dialog);
+    const submit = byId<HTMLButtonElement>('task-submit');
+
+    const run =
+      form.dataset.request === 'true'
+        ? () => service.requestTask(base)
+        : () => {
+            const input = {
+              ...base,
+              status,
+              estimatedHours: Math.max(0, Number(formValue(form, 'estimatedHours')) || 0),
+            };
+            return id ? service.updateTask(id, input) : service.addTask(input);
+          };
+
+    void attempt(run, {
+      button: submit,
+      success: form.dataset.request === 'true' ? 'Request sent.' : undefined,
+    }).then((ok) => ok && closeDialog(dialog));
   });
 
   store.subscribe((state, previous) => {
@@ -167,5 +287,6 @@ export function initTaskBoard(store: Store): void {
       render(state);
     }
   });
+  onViewerChange(() => render(store.getState()));
   render(store.getState());
 }

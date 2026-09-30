@@ -14,10 +14,17 @@ export const ROOMS = [
   { id: 'general', label: 'General / Structure' },
 ] as const;
 
+/** Columns on the task board. */
 export const TASK_STATUSES = [
   { id: 'todo', label: 'To Do' },
   { id: 'in-progress', label: 'In Progress' },
   { id: 'completed', label: 'Completed' },
+] as const;
+
+/** Landowner requests live outside the board until accepted (→ todo) or declined. */
+export const REQUEST_STATUSES = [
+  { id: 'requested', label: 'Requested' },
+  { id: 'declined', label: 'Declined' },
 ] as const;
 
 export const PRIORITIES = [
@@ -35,7 +42,9 @@ export const JOURNAL_TAGS = [
 ] as const;
 
 export type RoomId = (typeof ROOMS)[number]['id'];
-export type TaskStatus = (typeof TASK_STATUSES)[number]['id'];
+export type BoardStatus = (typeof TASK_STATUSES)[number]['id'];
+export type RequestStatus = (typeof REQUEST_STATUSES)[number]['id'];
+export type TaskStatus = BoardStatus | RequestStatus;
 export type Priority = (typeof PRIORITIES)[number]['id'];
 export type JournalTag = (typeof JOURNAL_TAGS)[number]['id'];
 
@@ -49,12 +58,15 @@ function labelFor(list: readonly Option[], id: string): string {
 }
 
 export const roomLabel = (id: string) => labelFor(ROOMS, id);
-export const statusLabel = (id: string) => labelFor(TASK_STATUSES, id);
+export const statusLabel = (id: string) => labelFor([...TASK_STATUSES, ...REQUEST_STATUSES], id);
 export const priorityLabel = (id: string) => labelFor(PRIORITIES, id);
 export const tagLabel = (id: string) => labelFor(JOURNAL_TAGS, id);
 
 export const isRoomId = (v: unknown): v is RoomId => ROOMS.some((o) => o.id === v);
-export const isTaskStatus = (v: unknown): v is TaskStatus => TASK_STATUSES.some((o) => o.id === v);
+export const isBoardStatus = (v: unknown): v is BoardStatus =>
+  TASK_STATUSES.some((o) => o.id === v);
+export const isTaskStatus = (v: unknown): v is TaskStatus =>
+  isBoardStatus(v) || REQUEST_STATUSES.some((o) => o.id === v);
 export const isPriority = (v: unknown): v is Priority => PRIORITIES.some((o) => o.id === v);
 export const isJournalTag = (v: unknown): v is JournalTag => JOURNAL_TAGS.some((o) => o.id === v);
 
