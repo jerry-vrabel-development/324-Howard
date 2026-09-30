@@ -65,6 +65,11 @@ export async function sendSignInEmail(email: string): Promise<void> {
     options: { shouldCreateUser: false, emailRedirectTo: redirect },
   });
   if (error) {
+    if (error.status === 429 || /rate limit|too many/i.test(error.message)) {
+      throw new Error(
+        'Too many sign-in emails were sent recently. Wait a while (up to an hour) and try again, or use the link from an email you already received.',
+      );
+    }
     // With sign-ups off, unknown addresses are rejected. Say so plainly.
     throw new Error(
       /signups? not allowed|not found|otp_disabled/i.test(error.message)
@@ -78,8 +83,9 @@ export async function verifySignInCode(email: string, token: string): Promise<vo
   check(await supabase().auth.verifyOtp({ email, token, type: 'email' }));
 }
 
+/** Signs out this browser only; other devices stay signed in. */
 export async function signOut(): Promise<void> {
-  await supabase().auth.signOut();
+  await supabase().auth.signOut({ scope: 'local' });
 }
 
 /**

@@ -826,26 +826,33 @@
       </form>
       <form id="signin-code-form" class="space-y-4 p-6" hidden>
         <p class="text-sm text-slate-600">
-          Check <strong id="signin-sent-to"></strong>. Open the link in the email on this device, or
-          type the code from the email here.
+          We sent a sign-in link to <strong id="signin-sent-to"></strong>. Open it
+          <strong>on this device, in this browser</strong>, and you'll be signed in here. It can
+          take a minute to arrive; check spam too.
         </p>
-        <div>
-          <label for="signin-code">Code</label>
+        <div id="signin-code-fields" hidden>
+          <label for="signin-code">Or type the code from the email</label>
           <input
             id="signin-code"
             name="code"
             inputmode="numeric"
             autocomplete="one-time-code"
             pattern="[0-9 ]{6,12}"
-            required
             class="field font-mono tracking-widest"
           />
         </div>
-        <div class="flex justify-between gap-3">
+        <div class="flex flex-wrap justify-between gap-3">
           <button type="button" id="signin-back" class="btn btn-ghost">
             Use a different email
           </button>
-          <button type="submit" class="btn btn-primary">Sign in</button>
+          <div class="flex gap-2">
+            <button type="button" id="signin-resend" class="btn btn-ghost border border-slate-200">
+              Send again
+            </button>
+            <button type="submit" id="signin-code-submit" class="btn btn-primary" hidden>
+              Sign in
+            </button>
+          </div>
         </div>
       </form>
     </dialog>

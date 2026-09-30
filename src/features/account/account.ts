@@ -3,10 +3,14 @@ import { closeDialog, openDialog } from '../../components/dialog';
 import { hydrateIcons } from '../../components/icons';
 import { sendSignInEmail, signOut, verifySignInCode } from '../../backend/auth';
 import { getViewer, onViewerChange, type Viewer } from '../../backend/viewer';
+import { SIGN_IN_CODES } from '../../config/supabase';
 import { byId, formValue } from '../../utils/dom';
 import { html, setHtml } from '../../utils/html';
 
 const ROLE_LABEL = { admin: 'Admin', landowner: 'Landowner', visitor: 'No access yet' } as const;
+
+/** Supabase makes each address wait about a minute between emails; mirror that in the UI. */
+const RESEND_COOLDOWN_S = 60;
 
 /** Header sign-in button, the email/code sign-in dialog, and the account dialog. */
 export function initAccount(): void {
@@ -34,7 +38,8 @@ export function initAccount(): void {
   function showStep(step: 'email' | 'code'): void {
     emailForm.hidden = step !== 'email';
     codeForm.hidden = step !== 'code';
-    (step === 'email' ? byId('signin-email') : byId('signin-code')).focus();
+    if (step === 'email') byId('signin-email').focus();
+    else if (SIGN_IN_CODES) byId('signin-code').focus();
   }
 
   button.addEventListener('click', () => {
@@ -53,15 +58,42 @@ export function initAccount(): void {
     }
   });
 
-  emailForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    email = formValue(emailForm, 'email');
-    const submit = emailForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const resend = byId<HTMLButtonElement>('signin-resend');
+  let cooldownTimer: number | undefined;
+
+  function startCooldown(): void {
+    window.clearInterval(cooldownTimer);
+    let left = RESEND_COOLDOWN_S;
+    const tick = () => {
+      resend.disabled = left > 0;
+      resend.textContent = left > 0 ? `Send again (${left}s)` : 'Send again';
+      left -= 1;
+      if (left < 0) window.clearInterval(cooldownTimer);
+    };
+    tick();
+    cooldownTimer = window.setInterval(tick, 1000);
+  }
+
+  async function send(submit: HTMLButtonElement | null): Promise<void> {
     if (await attempt(() => sendSignInEmail(email), { button: submit })) {
       byId('signin-sent-to').textContent = email;
       showStep('code');
+      startCooldown();
     }
+  }
+
+  // Codes only work once the email template includes {{ .Token }} (needs custom SMTP).
+  byId('signin-code-fields').hidden = !SIGN_IN_CODES;
+  byId('signin-code-submit').hidden = !SIGN_IN_CODES;
+  byId<HTMLInputElement>('signin-code').required = SIGN_IN_CODES;
+
+  emailForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    email = formValue(emailForm, 'email');
+    await send(emailForm.querySelector<HTMLButtonElement>('button[type="submit"]'));
   });
+
+  resend.addEventListener('click', () => void send(resend));
 
   codeForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -80,6 +112,10 @@ export function initAccount(): void {
     }
   });
 
-  onViewerChange(renderButton);
+  onViewerChange((viewer) => {
+    renderButton(viewer);
+    // Opening the email link in another tab signs this tab in too; close the dialog here.
+    if (viewer.userId) closeDialog(signInDialog);
+  });
   renderButton(getViewer());
 }

@@ -18,3 +18,11 @@ export const DATA_MODE: 'local' | 'remote' =
   import.meta.env.VITE_DATA_MODE === 'local' ? 'local' : 'remote';
 
 export const PHOTO_BUCKET = 'photos';
+
+/**
+ * Typed sign-in codes. Supabase's default email only contains a link, and the
+ * template can't be edited without custom SMTP. After setting up custom SMTP and
+ * adding {{ .Token }} to the Magic Link template, set VITE_SIGN_IN_CODES=true
+ * (or change the default here) to show the code box in the sign-in dialog.
+ */
+export const SIGN_IN_CODES: boolean = import.meta.env.VITE_SIGN_IN_CODES === 'true';
