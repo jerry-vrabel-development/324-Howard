@@ -1,6 +1,51 @@
 {
   "photos": [
     {
+      "id": "pub-living-room",
+      "room": "living-room",
+      "title": "Living room",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/living-room-after.webp",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "pub-kitchen-floors2",
+      "room": "kitchen",
+      "title": "Kitchen floors2",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/kitchen-floors2-after.webp",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "pub-kitchen-floors",
+      "room": "kitchen",
+      "title": "Kitchen floors",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/kitchen-floors-after.webp",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "pub-general-frontroom",
+      "room": "general",
+      "title": "General frontroom",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/general-frontroom-after.webp",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "pub-general-dining",
+      "room": "general",
+      "title": "General dining",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/general-dining-after.webp",
+      "date": "2026-10-01"
+    },
+    {
       "id": "pub-removejunk-frontroom",
       "room": "general",
       "title": "Removejunk frontroom",
