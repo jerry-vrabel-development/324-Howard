@@ -1,11 +1,14 @@
 {
   "hero": {
-    "video": "",
-    "poster": ""
+    "video": "video/hero.mp4",
+    "poster": "video/hero-poster.webp"
   },
   "map": {
     "zoom": 14,
-    "house": { "lat": 41.6036259, "lng": -87.264517 },
+    "house": {
+      "lat": 41.6036259,
+      "lng": -87.264517
+    },
     "places": [
       {
         "name": "Marquette Park and beach",
