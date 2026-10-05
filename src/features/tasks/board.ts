@@ -20,6 +20,7 @@ import { byId, fillSelect, formValue } from '../../utils/dom';
 import { formatHours } from '../../utils/format';
 import { html, setHtml } from '../../utils/html';
 import { initFeedback } from './feedback';
+import { initTimeLog } from './timeLog';
 import {
   DEFAULT_FILTERS,
   computeStats,
@@ -90,6 +91,7 @@ export function initTaskBoard(store: Store, service: DataService): void {
   const dialog = byId<HTMLDialogElement>('dialog-task');
   const form = byId<HTMLFormElement>('task-form');
   const openFeedback = initFeedback(service);
+  const openTimeLog = initTimeLog(service);
 
   fillSelect(roomFilter, ROOMS, 'All rooms');
   fillSelect(priorityFilter, PRIORITIES, 'All priorities');
@@ -205,6 +207,9 @@ export function initTaskBoard(store: Store, service: DataService): void {
         break;
       case 'edit-task':
         openForm(task);
+        break;
+      case 'log-time':
+        openTimeLog(task);
         break;
       case 'feedback':
         openFeedback(task);

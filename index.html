@@ -878,6 +878,79 @@
       </div>
     </dialog>
 
+    <dialog id="dialog-time" class="dialog" aria-labelledby="time-heading">
+      <div class="dialog-header">
+        <div>
+          <h2 id="time-heading" class="text-lg font-bold text-slate-900">Log time</h2>
+          <p id="time-task" class="text-sm text-slate-500"></p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <i data-lucide="x" class="size-5"></i>
+        </button>
+      </div>
+      <div class="space-y-6 p-6">
+        <form id="time-form" class="space-y-4">
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-3 sm:col-span-1">
+              <label for="time-date">Date</label>
+              <input id="time-date" name="date" type="date" required class="field" />
+            </div>
+            <div>
+              <label for="time-hours">Hours</label>
+              <input
+                id="time-hours"
+                name="hours"
+                type="number"
+                min="0"
+                max="24"
+                step="1"
+                inputmode="numeric"
+                class="field"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label for="time-minutes">Minutes</label>
+              <input
+                id="time-minutes"
+                name="minutes"
+                type="number"
+                min="0"
+                max="59"
+                step="5"
+                inputmode="numeric"
+                class="field"
+                placeholder="0"
+              />
+            </div>
+          </div>
+          <div>
+            <label for="time-note">Note (optional)</label>
+            <input
+              id="time-note"
+              name="note"
+              type="text"
+              maxlength="200"
+              class="field"
+              placeholder="What you did"
+            />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="btn btn-primary">
+              <i data-lucide="clock-plus" class="size-4"></i> Add time
+            </button>
+          </div>
+        </form>
+        <div class="border-t border-slate-100 pt-4">
+          <div class="mb-2 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-800">Time logged</h3>
+            <span id="time-total" class="text-xs font-medium text-slate-500"></span>
+          </div>
+          <ul id="time-list" class="max-h-64 space-y-2 overflow-y-auto"></ul>
+        </div>
+      </div>
+    </dialog>
+
     <dialog id="dialog-feedback" class="dialog" aria-labelledby="feedback-heading">
       <div class="dialog-header">
         <div>

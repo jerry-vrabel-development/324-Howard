@@ -48,7 +48,7 @@ export function taskCard(task: Task, timerRunning: boolean, viewer: Viewer) {
       ${task.notes ? html`<p class="line-clamp-2 text-xs text-slate-500">${task.notes}</p>` : ''}
 
       <div
-        class="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-xs text-slate-600"
+        class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-xs text-slate-600"
       >
         <span class="flex items-center gap-1.5">
           <i data-lucide="clock" class="size-3.5 text-coastal-600"></i>
@@ -60,22 +60,38 @@ export function taskCard(task: Task, timerRunning: boolean, viewer: Viewer) {
             of ${formatHours(task.estimatedHours)}
           </span>
         </span>
-        ${
-          admin && task.status !== 'completed'
-            ? html`<button
-                type="button"
-                class="timer-btn ${timerRunning ? 'timer-btn-running' : ''}"
-                data-action="toggle-timer"
-                aria-pressed="${timerRunning}"
-                aria-label="${timerRunning ? 'Stop timer for' : 'Start timer for'} ${task.title}"
-              >
-                <i data-lucide="${timerRunning ? 'pause' : 'play'}" class="size-3"></i>
-                <span>${timerRunning ? 'Running' : 'Start timer'}</span>
-              </button>`
-            : timerRunning
-              ? html`<span class="font-medium text-rose-600">Timer running</span>`
+        <span class="flex items-center gap-1.5">
+          ${
+            admin
+              ? html`<button
+                  type="button"
+                  class="timer-btn"
+                  data-action="log-time"
+                  aria-label="Log or review time for ${task.title}"
+                  title="Log time by hand"
+                >
+                  <i data-lucide="clock-plus" class="size-3"></i>
+                  <span>Log</span>
+                </button>`
               : ''
-        }
+          }
+          ${
+            admin && task.status !== 'completed'
+              ? html`<button
+                  type="button"
+                  class="timer-btn ${timerRunning ? 'timer-btn-running' : ''}"
+                  data-action="toggle-timer"
+                  aria-pressed="${timerRunning}"
+                  aria-label="${timerRunning ? 'Stop timer for' : 'Start timer for'} ${task.title}"
+                >
+                  <i data-lucide="${timerRunning ? 'pause' : 'play'}" class="size-3"></i>
+                  <span>${timerRunning ? 'Running' : 'Start timer'}</span>
+                </button>`
+              : timerRunning
+                ? html`<span class="font-medium text-rose-600">Timer running</span>`
+                : ''
+          }
+        </span>
       </div>
 
       <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">

@@ -99,6 +99,18 @@ export function stopTimer(state: AppData, now: number): AppData {
   };
 }
 
+/** Adds hand-entered time to a task (browser-only mode, which has no session history). */
+export function addLoggedHours(state: AppData, taskId: string, hours: number): AppData {
+  return {
+    ...state,
+    tasks: state.tasks.map((t) =>
+      t.id === taskId
+        ? { ...t, loggedHours: Math.round((t.loggedHours + hours) * 10_000) / 10_000 }
+        : t,
+    ),
+  };
+}
+
 export function toggleTimer(state: AppData, taskId: string, now: number): AppData {
   return state.activeTimer?.taskId === taskId
     ? stopTimer(state, now)

@@ -31,6 +31,22 @@ export interface Task {
   commentCount?: number;
 }
 
+/** One block of work on a task, from the timer or entered by hand. */
+export interface WorkSession {
+  id: string;
+  taskId: string;
+  startedAt: string;
+  /** null while the timer is still running. */
+  endedAt: string | null;
+  note: string;
+}
+
+export interface ManualTimeInput {
+  date: IsoDate;
+  minutes: number;
+  note: string;
+}
+
 export interface TaskComment {
   id: string;
   taskId: string;

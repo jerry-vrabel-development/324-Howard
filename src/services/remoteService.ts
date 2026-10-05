@@ -3,7 +3,16 @@ import { isJournalTag, isPriority, isRoomId, isTaskStatus } from '../config/cons
 import { check, photoUrl, supabase } from '../backend/supabase';
 import { getViewer, isMember } from '../backend/viewer';
 import type { Store } from '../store/store';
-import type { ActiveTimer, AppData, JournalEntry, Photo, Task, TaskComment } from '../types';
+import type {
+  ActiveTimer,
+  AppData,
+  JournalEntry,
+  Photo,
+  Task,
+  TaskComment,
+  WorkSession,
+} from '../types';
+import { manualSession } from '../utils/time';
 import { isIsoDate, todayIso } from '../utils/dates';
 import { prepareImage } from '../utils/image';
 import type { DataService } from './dataService';
@@ -242,6 +251,45 @@ export function createRemoteService(store: Store): DataService {
       }),
 
     stopTimer: () => write(stopRunning),
+
+    logTime: (taskId, input) =>
+      write(async () => {
+        const { startedAt, endedAt } = manualSession(input.date, input.minutes);
+        check(
+          await db().from('work_sessions').insert({
+            task_id: taskId,
+            started_at: startedAt,
+            ended_at: endedAt,
+            note: input.note,
+          }),
+        );
+      }),
+
+    async listSessions(taskId) {
+      const rows = check(
+        await db()
+          .from('work_sessions')
+          .select('id, task_id, started_at, ended_at, note')
+          .eq('task_id', taskId)
+          .order('started_at', { ascending: false }),
+      ) as {
+        id: string;
+        task_id: string;
+        started_at: string;
+        ended_at: string | null;
+        note: string;
+      }[];
+      return rows.map((r): WorkSession => ({
+        id: r.id,
+        taskId: r.task_id,
+        startedAt: r.started_at,
+        endedAt: r.ended_at,
+        note: r.note,
+      }));
+    },
+
+    deleteSession: (id) =>
+      write(async () => check(await db().from('work_sessions').delete().eq('id', id))),
 
     requestTask: (input) =>
       write(async () =>

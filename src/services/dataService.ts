@@ -1,5 +1,13 @@
 import type { BoardStatus } from '../config/constants';
-import type { AppData, JournalInput, PhotoInput, TaskComment, TaskInput } from '../types';
+import type {
+  AppData,
+  JournalInput,
+  ManualTimeInput,
+  PhotoInput,
+  TaskComment,
+  TaskInput,
+  WorkSession,
+} from '../types';
 
 export interface NewPhoto extends Omit<PhotoInput, 'beforeUrl' | 'afterUrl'> {
   /** Files picked in the form (phone camera or library). Uploaded after resizing. */
@@ -29,6 +37,10 @@ export interface DataService {
   deleteTask(id: string): Promise<void>;
   toggleTimer(taskId: string): Promise<void>;
   stopTimer(): Promise<void>;
+  /** Time entered by hand, for work done without the timer running. */
+  logTime(taskId: string, input: ManualTimeInput): Promise<void>;
+  listSessions(taskId: string): Promise<WorkSession[]>;
+  deleteSession(id: string): Promise<void>;
 
   requestTask(input: RequestInput): Promise<void>;
   decideRequest(id: string, accept: boolean): Promise<void>;

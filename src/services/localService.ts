@@ -22,6 +22,9 @@ export function createLocalService(store: Store): DataService {
     deleteTask: (id) => run((s) => actions.deleteTask(s, id)),
     toggleTimer: (id) => run((s) => actions.toggleTimer(s, id, Date.now())),
     stopTimer: () => run((s) => actions.stopTimer(s, Date.now())),
+    logTime: (id, input) => run((s) => actions.addLoggedHours(s, id, input.minutes / 60)),
+    listSessions: () => Promise.resolve([]),
+    deleteSession: unsupported('Editing logged time'),
 
     requestTask: unsupported('Task requests'),
     decideRequest: unsupported('Task requests'),
