@@ -1,6 +1,105 @@
 {
   "photos": [
     {
+      "id": "pub-exterior-backyard-11-2",
+      "room": "exterior",
+      "title": "Exterior backyard 11",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-11-2.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-10",
+      "room": "exterior",
+      "title": "Exterior backyard 10",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-10.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-09",
+      "room": "exterior",
+      "title": "Exterior backyard 09",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-09.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-08",
+      "room": "exterior",
+      "title": "Exterior backyard 08",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-08.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-07",
+      "room": "exterior",
+      "title": "Exterior backyard 07",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-07.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-06",
+      "room": "exterior",
+      "title": "Exterior backyard 06",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-06.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-05-2",
+      "room": "exterior",
+      "title": "Exterior backyard 05",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-05-2.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-04-2",
+      "room": "exterior",
+      "title": "Exterior backyard 04",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-04-2.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-03-2",
+      "room": "exterior",
+      "title": "Exterior backyard 03",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-03-2.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-02-2",
+      "room": "exterior",
+      "title": "Exterior backyard 02",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-02-2.webp",
+      "date": "2026-10-09"
+    },
+    {
+      "id": "pub-exterior-backyard-01-2",
+      "room": "exterior",
+      "title": "Exterior backyard 01",
+      "description": "",
+      "beforeUrl": "",
+      "afterUrl": "photos/exterior-backyard-01-2.webp",
+      "date": "2026-10-09"
+    },
+    {
       "id": "pub-exterior-backyard-14",
       "room": "exterior",
       "title": "Exterior backyard 14",
